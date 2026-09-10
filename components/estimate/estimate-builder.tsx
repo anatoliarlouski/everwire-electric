@@ -72,7 +72,7 @@ export function EstimateBuilder() {
   const [documentType, setDocumentType] = useState<DocumentType>("estimate")
   const [customer, setCustomer] = useState<CustomerInfo>(EMPTY_CUSTOMER)
   const [projectType, setProjectType] = useState("")
-  const [items, setItems] = useState<EstimateItem[]>([newItem("Labor", { id: "item-initial" })])
+  const [items, setItems] = useState<EstimateItem[]>([])
   const [notes, setNotes] = useState("")
   const [customNumber, setCustomNumber] = useState("")
   const [createdDate, setCreatedDate] = useState("")
@@ -210,7 +210,7 @@ export function EstimateBuilder() {
   const handleClear = () => {
     setCustomer(EMPTY_CUSTOMER)
     setProjectType("")
-    setItems([newItem("Labor")])
+    setItems([])
     setNotes("")
     setErrors({})
     setCreatedDate(toDateInput(new Date()))
