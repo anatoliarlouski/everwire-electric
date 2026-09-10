@@ -292,18 +292,43 @@ export function pdfFilename(data: EstimateData): string {
   return `EverWire_${kind}_${customer}_${data.metadata.number}.pdf`
 }
 
+function saveBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement("a")
+  a.href = url
+  a.download = filename
+  a.rel = "noopener"
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 5000)
+}
+
+/**
+ * Download (desktop) or share (phones/tablets) the PDF under a real filename.
+ * Mobile browsers get the native share sheet with a named file so it never
+ * shows up as "unknown.pdf"; if sharing is unavailable or refused we fall back
+ * to a named download.
+ */
 export async function downloadPdf(data: EstimateData): Promise<void> {
   const doc = await buildPdf(data)
   const filename = pdfFilename(data)
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
-  if (isIOS) {
-    const url = URL.createObjectURL(doc.output("blob"))
-    const win = window.open(url, "_blank")
-    setTimeout(() => URL.revokeObjectURL(url), 2000)
-    if (!win) doc.save(filename)
-    return
+  const blob = doc.output("blob")
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent))
+
+  if (isMobile && typeof navigator.share === "function") {
+    const file = new File([blob], filename, { type: "application/pdf" })
+    if (!navigator.canShare || navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: filename })
+        return
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return // user closed the share sheet
+        // NotAllowedError or unsupported: fall through to a named download
+      }
+    }
   }
-  doc.save(filename)
+  saveBlob(blob, filename)
 }
 
 export async function pdfDataUri(data: EstimateData): Promise<string> {
