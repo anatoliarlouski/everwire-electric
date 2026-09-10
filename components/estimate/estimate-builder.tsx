@@ -147,9 +147,11 @@ export function EstimateBuilder() {
     if (!customer.name.trim()) next.customerName = "Customer name is required"
     if (!isValidPhone(customer.phone)) next.customerPhone = "Enter a 10-digit phone number, e.g. (847) 555-0100"
     if (!projectType) next.projectType = "Choose a project type"
-    const incomplete = items.some((i) => (i.quantity > 0 || i.rate > 0) && !i.description.trim())
+    // Blank lines (no description and no rate) are ignored; a rate without a description is an error.
+    const isBlank = (i: EstimateItem) => !i.description.trim() && i.rate <= 0
+    const incomplete = items.some((i) => !isBlank(i) && !i.description.trim())
     const complete = items.filter((i) => i.description.trim() && i.quantity > 0 && i.rate > 0)
-    if (incomplete) next.items = "Every priced line needs a description"
+    if (incomplete) next.items = "A line has a rate but no description"
     else if (complete.length === 0) next.items = "Add at least one line with a description, quantity, and rate"
     setErrors(next)
     const keys = Object.keys(next)
