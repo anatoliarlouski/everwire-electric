@@ -58,6 +58,14 @@ const newItem = (category: ItemCategory, overrides: Partial<EstimateItem> = {}):
 
 type Notice = { kind: "success" | "error"; text: string } | null
 
+/** Where to scroll when a validation rule fails */
+const FIELD_IDS: Record<string, string> = {
+  customerName: "cu-name",
+  customerPhone: "cu-phone",
+  projectType: "cu-type",
+  items: "work-items",
+}
+
 export function EstimateBuilder() {
   const [hydrated, setHydrated] = useState(false)
   const [documentType, setDocumentType] = useState<DocumentType>("estimate")
@@ -100,7 +108,7 @@ export function EstimateBuilder() {
 
   useEffect(() => {
     if (!notice) return
-    const t = setTimeout(() => setNotice(null), 4000)
+    const t = setTimeout(() => setNotice(null), notice.kind === "error" ? 6000 : 4000)
     return () => clearTimeout(t)
   }, [notice])
 
@@ -143,8 +151,17 @@ export function EstimateBuilder() {
     if (incomplete) next.items = "Every priced line needs a description"
     else if (complete.length === 0) next.items = "Add at least one line with a description, quantity, and rate"
     setErrors(next)
-    if (Object.keys(next).length) setNotice({ kind: "error", text: Object.values(next)[0] })
-    return Object.keys(next).length === 0
+    const keys = Object.keys(next)
+    if (keys.length) {
+      setNotice({ kind: "error", text: Object.values(next)[0] })
+      const targetId = FIELD_IDS[keys[0]]
+      const el = targetId ? document.getElementById(targetId) : null
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+        setTimeout(() => el.focus({ preventScroll: true }), 350)
+      }
+    }
+    return keys.length === 0
   }
 
   const changeDocumentType = (t: DocumentType) => {
@@ -226,14 +243,18 @@ export function EstimateBuilder() {
         </div>
       </div>
 
-      {notice && (
-        <div className="container mx-auto px-4 pt-4" aria-live="polite">
-          <div className={`flex items-center gap-2 rounded-md border px-4 py-3 text-sm ${notice.kind === "success" ? "border-brand-lime/50 bg-accent/15 text-foreground" : "border-destructive/40 bg-destructive/5 text-destructive"}`}>
-            {notice.kind === "success" ? <Check className="h-4 w-4" aria-hidden="true" /> : <AlertCircle className="h-4 w-4" aria-hidden="true" />}
-            {notice.text}
+      {/* Toast: fixed so it is visible wherever the user clicked; sits above the mobile call bar */}
+      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-24 z-[80] flex justify-center px-4 md:bottom-6">
+        {notice && (
+          <div
+            role={notice.kind === "error" ? "alert" : "status"}
+            className={`pointer-events-auto flex max-w-lg items-start gap-2 rounded-md border px-4 py-3 text-sm shadow-lg ${notice.kind === "success" ? "border-brand-lime/60 bg-background text-foreground" : "border-destructive/50 bg-background text-destructive"}`}
+          >
+            {notice.kind === "success" ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-lime-ink" aria-hidden="true" /> : <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />}
+            <span>{notice.text}</span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid gap-6 lg:grid-cols-3">
@@ -308,6 +329,7 @@ export function EstimateBuilder() {
                     </div>
                   }
                 >
+                  {category === "Labor" && <span id="work-items" tabIndex={-1} className="block outline-none" aria-hidden="true" />}
                   {category === "Labor" && errors.items && <p className="mb-3 text-sm text-destructive" role="alert">{errors.items}</p>}
                   {list.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Nothing added yet.</p>
