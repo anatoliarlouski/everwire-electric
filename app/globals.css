@@ -1,0 +1,100 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/*
+ * Everwire Electric design tokens
+ * Hex values come from the supplied brand board:
+ *   navy #0A1A27 · lime #8BC53F · gray #6B6F72 · line #E6E6E6 · white #FFFFFF
+ * Derived: lime-ink #4F7A1C (darkened lime for small text on light surfaces),
+ *          off-white #F5F6F4 (secondary surface; the logo has no cream, so a neutral off-white is used).
+ */
+:root {
+  --brand-navy: #0a1a27;
+  --brand-lime: #8bc53f;
+  --brand-lime-ink: #4f7a1c;
+  --brand-gray: #6b6f72;
+  --brand-line: #e6e6e6;
+  --brand-offwhite: #f5f6f4;
+
+  --background: #ffffff;
+  --foreground: var(--brand-navy);
+  --card: #ffffff;
+  --card-foreground: var(--brand-navy);
+  --popover: #ffffff;
+  --popover-foreground: var(--brand-navy);
+  --primary: var(--brand-navy);
+  --primary-foreground: #ffffff;
+  --secondary: var(--brand-offwhite);
+  --secondary-foreground: var(--brand-navy);
+  --muted: var(--brand-offwhite);
+  --muted-foreground: var(--brand-gray);
+  --accent: var(--brand-lime);
+  --accent-foreground: var(--brand-navy);
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --border: var(--brand-line);
+  --input: var(--brand-line);
+  --ring: var(--brand-lime);
+  --radius: 0.5rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-lime: var(--brand-lime);
+  --color-brand-lime-ink: var(--brand-lime-ink);
+  --color-brand-gray: var(--brand-gray);
+  --color-brand-line: var(--brand-line);
+  --color-brand-offwhite: var(--brand-offwhite);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4 {
+    @apply font-bold tracking-tight text-foreground;
+    text-wrap: balance;
+  }
+  /* Room for the sticky call bar on small screens */
+  .has-call-bar {
+    padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 768px) {
+    .has-call-bar {
+      padding-bottom: 0;
+    }
+  }
+}

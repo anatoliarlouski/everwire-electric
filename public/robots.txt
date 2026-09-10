@@ -1,0 +1,10 @@
+# robots.txt for Everwire Electric
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://everwireelectric.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
