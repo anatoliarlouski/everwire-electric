@@ -173,7 +173,7 @@ export async function buildPdf(data: EstimateData): Promise<jsPDF> {
     doc.text(heading.toUpperCase(), left, y)
     doc.setDrawColor(LIME.r, LIME.g, LIME.b)
     doc.setLineWidth(0.6)
-    doc.line(left, y + 1.5, left + 14, y + 1.5)
+    doc.line(left, y + 1.5, right, y + 1.5)
     y += 6
 
     // Header row
@@ -270,7 +270,7 @@ export async function buildPdf(data: EstimateData): Promise<jsPDF> {
     setColor(NAVY)
     doc.text("NOTES", left, y)
     doc.setDrawColor(LIME.r, LIME.g, LIME.b)
-    doc.line(left, y + 1.5, left + 14, y + 1.5)
+    doc.line(left, y + 1.5, right, y + 1.5)
     y += 6
     doc.setFillColor(ROW_TINT.r, ROW_TINT.g, ROW_TINT.b)
     doc.rect(left, y - 2, contentW, lines.length * 4.2 + 5, "F")
