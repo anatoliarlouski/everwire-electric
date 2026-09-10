@@ -230,7 +230,6 @@ export function EstimateBuilder() {
             </span>
             <div>
               <h1 className="text-2xl font-bold text-foreground">Estimate Builder</h1>
-              <p className="text-sm text-muted-foreground">Build electrical estimates and invoices, then download a branded PDF.</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
