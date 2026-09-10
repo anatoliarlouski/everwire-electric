@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button"
 import { Field, NumberInput, PhoneInput, SectionCard, Select, TextArea, TextInput } from "@/components/estimate/fields"
 import { PricingManager } from "@/components/estimate/pricing-manager"
 import { PdfPreview } from "@/components/estimate/pdf-preview"
+import { AddressAutocomplete } from "@/components/estimate/address-autocomplete"
 import { BUSINESS, CONTACT, CREDENTIALS } from "@/lib/constants"
 import { addDays, computeTotals, money, toDateInput } from "@/lib/estimate/calc"
 import { downloadPdf } from "@/lib/estimate/pdf"
@@ -296,7 +297,7 @@ export function EstimateBuilder() {
                   <TextInput id="cu-email" type="email" value={customer.email} onChange={(e) => setCustomer((c) => ({ ...c, email: e.target.value }))} placeholder="jane@example.com" />
                 </Field>
                 <Field label="Job address" htmlFor="cu-addr" className="sm:col-span-2">
-                  <TextInput id="cu-addr" value={customer.address} onChange={(e) => setCustomer((c) => ({ ...c, address: e.target.value }))} placeholder="123 Main St, Schaumburg, IL 60193" />
+                  <AddressAutocomplete id="cu-addr" value={customer.address} onValueChange={(v) => setCustomer((c) => ({ ...c, address: v }))} placeholder="123 Main St, Schaumburg, IL 60193" />
                 </Field>
                 <Field label="Project description" htmlFor="cu-desc" className="sm:col-span-2" hint="Shown on the PDF under Project">
                   <TextArea id="cu-desc" value={customer.projectDescription} onChange={(e) => setCustomer((c) => ({ ...c, projectDescription: e.target.value }))} placeholder="Install Level 2 EV charger in attached garage, 40A dedicated circuit from main panel." />
