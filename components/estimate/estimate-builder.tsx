@@ -387,11 +387,13 @@ export function EstimateBuilder() {
               <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-brand-lime">Summary</p>
               <dl className="space-y-2 text-sm">
                 <Row label="Work items" value={money(totals.laborTotal)} />
+                {totals.discountAmount > 0 && (
+                  <Row label={`Discount (${settings.discount}%)`} value={`-${money(totals.discountAmount)}`} indent />
+                )}
                 <Row label="Materials" value={money(totals.materialsTotal)} />
                 <Row label="Permits" value={money(totals.permitsTotal)} />
                 <div className="my-2 border-t border-white/10" />
-                <Row label="Subtotal" value={money(totals.subtotal)} />
-                {totals.discountAmount > 0 && <Row label={`Discount on work items (${settings.discount}%)`} value={`-${money(totals.discountAmount)}`} />}
+                <Row label="Subtotal" value={money(totals.laborAfterDiscount + totals.materialsAfterDiscount + totals.permitsAfterDiscount)} />
                 {totals.tax > 0 && <Row label={`Tax on materials (${settings.taxRate}%)`} value={money(totals.tax)} />}
               </dl>
               <div className="mt-4 flex items-baseline justify-between border-t border-brand-lime/40 pt-4">
@@ -458,10 +460,10 @@ export function EstimateBuilder() {
   )
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value, indent = false }: { label: string; value: string; indent?: boolean }) {
   return (
-    <div className="flex justify-between gap-4">
-      <dt className="text-white/75">{label}</dt>
+    <div className={`flex justify-between gap-4 ${indent ? "pl-4 text-white/60" : ""}`}>
+      <dt className={indent ? "" : "text-white/75"}>{label}</dt>
       <dd className="tabular-nums">{value}</dd>
     </div>
   )

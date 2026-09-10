@@ -267,7 +267,8 @@ export async function buildPdf(data: EstimateData): Promise<jsPDF> {
   // Summary
   const sumW = 80
   const sumX = right - sumW
-  const rows: [string, string][] = [["Subtotal", money(data.totals.subtotal)]]
+  const afterDiscount = data.totals.laborAfterDiscount + data.totals.materialsAfterDiscount + data.totals.permitsAfterDiscount
+  const rows: [string, string][] = [["Subtotal", money(afterDiscount)]]
   if (data.totals.tax > 0) rows.push([`Sales tax on materials (${data.settings.taxRate}%)`, money(data.totals.tax)])
   ensureSpace(rows.length * 8 + 14)
   doc.setFont(FONT, "normal")
