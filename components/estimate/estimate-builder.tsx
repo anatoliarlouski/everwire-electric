@@ -239,9 +239,6 @@ export function EstimateBuilder() {
             <Button variant="outline" onClick={() => setPricingOpen(true)}>
               <BookOpen className="h-4 w-4" aria-hidden="true" /> Price list &amp; settings
             </Button>
-            <Button variant="accent" onClick={handleDownload} disabled={busy}>
-              <Download className="h-4 w-4" aria-hidden="true" /> {busy ? "Building…" : `Download ${docLabel}`}
-            </Button>
           </div>
         </div>
       </div>
