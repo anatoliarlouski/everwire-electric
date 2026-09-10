@@ -141,7 +141,7 @@ export async function buildPdf(data: EstimateData): Promise<jsPDF> {
     data.companyInfo.email,
     data.companyInfo.address,
   ])
-  drawBox(left + colW + 6, isInvoice ? "Bill to" : "Prepared for", [
+  drawBox(left + colW + 6, "Client information", [
     data.customerInfo.name,
     data.customerInfo.phone,
     data.customerInfo.email,
