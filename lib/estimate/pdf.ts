@@ -1,6 +1,6 @@
 /**
  * PDF generation for estimates and invoices (jsPDF, loaded on demand).
- * Layout ported from QuoteCrafts and restyled with the Everwire brand.
+ * Layout ported from QuoteCrafts and restyled with the EverWire brand.
  */
 import type { jsPDF } from "jspdf"
 import type { EstimateData, EstimateItem } from "./types"
@@ -289,7 +289,7 @@ export async function buildPdf(data: EstimateData): Promise<jsPDF> {
 export function pdfFilename(data: EstimateData): string {
   const customer = data.customerInfo.name.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_|_$/g, "") || "Customer"
   const kind = data.documentType === "invoice" ? "Invoice" : "Estimate"
-  return `Everwire_${kind}_${customer}_${data.metadata.number}.pdf`
+  return `EverWire_${kind}_${customer}_${data.metadata.number}.pdf`
 }
 
 export async function downloadPdf(data: EstimateData): Promise<void> {

@@ -1,4 +1,4 @@
-# robots.txt for Everwire Electric
+# robots.txt for EverWire Electric
 
 User-agent: *
 Allow: /

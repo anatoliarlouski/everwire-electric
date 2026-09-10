@@ -35,7 +35,7 @@ import type { CompanyInfo, CustomerInfo, DocumentType, EstimateData, EstimateIte
 /** Company details come from the site constants and are not editable here. */
 const COMPANY: CompanyInfo = {
   name: BUSINESS.name,
-  description: `${CREDENTIALS.license} · ${CREDENTIALS.insurance.type}`,
+  description: CREDENTIALS.license,
   phone: CONTACT.phone.display,
   email: CONTACT.email,
   address: `${CONTACT.location.region}, IL`,

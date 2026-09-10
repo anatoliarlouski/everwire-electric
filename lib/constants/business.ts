@@ -4,14 +4,14 @@
  */
 
 export const BUSINESS = {
-  name: 'Everwire Electric',
-  alternateName: 'Everwire',
+  name: 'EverWire Electric',
+  alternateName: 'EverWire',
   // TODO: confirm the production domain. everwireelectric.com is taken from the brand board mockup.
   url: 'https://everwireelectric.com',
   founded: 2009,
   description: 'Expert licensed electrical services for homes & businesses in Northwest Chicago Suburbs. 24/7 emergency repairs, wiring upgrades, panel services & more. Free estimates!',
   tagline: 'Professional Electrical Solutions You Can Trust',
-  seoTitle: 'Professional Electrical Services in Northwest Chicago Suburbs | Everwire Electric',
+  seoTitle: 'Professional Electrical Services in Northwest Chicago Suburbs | EverWire Electric',
   yearsExperience: new Date().getFullYear() - 2009,
 } as const
 
