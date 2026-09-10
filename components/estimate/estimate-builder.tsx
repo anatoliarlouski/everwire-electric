@@ -10,7 +10,6 @@ import {
   FileText,
   Plus,
   RotateCcw,
-  Save,
   Trash2,
   User,
   Wrench,
@@ -31,7 +30,8 @@ import { loadJSON, saveJSON } from "@/lib/estimate/storage"
 import { BUILT_IN_TEMPLATES, CATEGORY_META, DEFAULT_SETTINGS, PROJECT_TYPES, UNITS, isBuiltInTemplate } from "@/lib/estimate/templates"
 import type { CompanyInfo, CustomerInfo, DocumentType, EstimateData, EstimateItem, EstimateSettings, ItemCategory, PricingTemplate } from "@/lib/estimate/types"
 
-const DEFAULT_COMPANY: CompanyInfo = {
+/** Company details come from the site constants and are not editable here. */
+const COMPANY: CompanyInfo = {
   name: BUSINESS.name,
   description: `${CREDENTIALS.license} · ${CREDENTIALS.insurance.type}`,
   phone: CONTACT.phone.display,
@@ -57,7 +57,6 @@ type Notice = { kind: "success" | "error"; text: string } | null
 export function EstimateBuilder() {
   const [hydrated, setHydrated] = useState(false)
   const [documentType, setDocumentType] = useState<DocumentType>("estimate")
-  const [company, setCompany] = useState<CompanyInfo>(DEFAULT_COMPANY)
   const [customer, setCustomer] = useState<CustomerInfo>(EMPTY_CUSTOMER)
   const [projectType, setProjectType] = useState("")
   const [items, setItems] = useState<EstimateItem[]>([newItem("Labor")])
@@ -73,17 +72,13 @@ export function EstimateBuilder() {
   const [busy, setBusy] = useState(false)
   const [notice, setNotice] = useState<Notice>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [companySaved, setCompanySaved] = useState(false)
 
   // Load saved data once on the client (deferred a frame so it never blocks first paint)
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-    const savedCompany = loadJSON<CompanyInfo>("company")
     const savedSettings = loadJSON<EstimateSettings>("settings")
     const userTemplates = loadJSON<PricingTemplate[]>("templates")
     const savedType = loadJSON<DocumentType>("documentType")
-    const savedNumber = loadJSON<string>("customNumber")
-    if (savedCompany) setCompany({ ...DEFAULT_COMPANY, ...savedCompany })
     if (savedSettings) {
       const merged = { ...DEFAULT_SETTINGS, ...savedSettings }
       setSettings(merged)
@@ -91,7 +86,6 @@ export function EstimateBuilder() {
     }
     if (userTemplates) setTemplates([...BUILT_IN_TEMPLATES, ...userTemplates.filter((t) => !isBuiltInTemplate(t.id))])
     if (savedType === "estimate" || savedType === "invoice") setDocumentType(savedType)
-    if (savedNumber) setCustomNumber(savedNumber)
     setHydrated(true)
     })
     return () => cancelAnimationFrame(frame)
@@ -121,14 +115,6 @@ export function EstimateBuilder() {
     setItems((list) => [...list, newItem(t.category, { description: t.name, unit: t.unit, rate: t.rate, total: t.rate })])
 
   // ----- persistence -----
-  const saveCompany = () => {
-    const ok = saveJSON("company", company) && saveJSON("documentType", documentType) && saveJSON("customNumber", customNumber)
-    setNotice(ok ? { kind: "success", text: "Company details saved on this device." } : { kind: "error", text: "Could not save. Check browser storage settings." })
-    if (ok) {
-      setCompanySaved(true)
-      setTimeout(() => setCompanySaved(false), 1500)
-    }
-  }
   const changeSettings = (s: EstimateSettings) => {
     setSettings(s)
     saveJSON("settings", s)
@@ -142,7 +128,6 @@ export function EstimateBuilder() {
   // ----- validation + document assembly -----
   const validate = (): boolean => {
     const next: Record<string, string> = {}
-    if (!company.name.trim()) next.companyName = "Company name is required"
     if (!customer.name.trim()) next.customerName = "Customer name is required"
     if (!projectType) next.projectType = "Choose a project type"
     const incomplete = items.some((i) => (i.quantity > 0 || i.rate > 0) && !i.description.trim())
@@ -154,11 +139,16 @@ export function EstimateBuilder() {
     return Object.keys(next).length === 0
   }
 
+  const changeDocumentType = (t: DocumentType) => {
+    setDocumentType(t)
+    saveJSON("documentType", t)
+  }
+
   const documentNumber = () => customNumber.trim() || `${documentType === "invoice" ? "INV" : "EST"}-${Date.now().toString().slice(-6)}`
 
   const assemble = (): EstimateData => ({
     documentType,
-    companyInfo: company,
+    companyInfo: COMPANY,
     customerInfo: customer,
     projectType,
     items: items.filter((i) => i.description.trim()),
@@ -240,36 +230,23 @@ export function EstimateBuilder() {
       <div className="container mx-auto px-4 py-8">
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            {/* Company */}
-            <SectionCard
-              title="Your company"
-              description="Appears in the From box on the PDF"
-              icon={Building2}
-              action={
-                <Button size="sm" variant="outline" onClick={saveCompany} disabled={!hydrated}>
-                  {companySaved ? <Check className="h-4 w-4" aria-hidden="true" /> : <Save className="h-4 w-4" aria-hidden="true" />}
-                  {companySaved ? "Saved" : "Save defaults"}
-                </Button>
-              }
-            >
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Company name" htmlFor="co-name" required error={errors.companyName}>
-                  <TextInput id="co-name" value={company.name} invalid={!!errors.companyName} onChange={(e) => setCompany((c) => ({ ...c, name: e.target.value }))} />
-                </Field>
-                <Field label="Tagline" htmlFor="co-desc">
-                  <TextInput id="co-desc" value={company.description} onChange={(e) => setCompany((c) => ({ ...c, description: e.target.value }))} />
-                </Field>
-                <Field label="Phone" htmlFor="co-phone">
-                  <TextInput id="co-phone" type="tel" value={company.phone} onChange={(e) => setCompany((c) => ({ ...c, phone: e.target.value }))} />
-                </Field>
-                <Field label="Email" htmlFor="co-email">
-                  <TextInput id="co-email" type="email" value={company.email} onChange={(e) => setCompany((c) => ({ ...c, email: e.target.value }))} />
-                </Field>
-                <Field label="Address / service area" htmlFor="co-addr" className="sm:col-span-2">
-                  <TextInput id="co-addr" value={company.address} onChange={(e) => setCompany((c) => ({ ...c, address: e.target.value }))} />
-                </Field>
+            {/* Company (static) */}
+            <div className="flex flex-col gap-3 rounded-xl border border-border bg-card px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-accent/15 text-brand-lime-ink">
+                  <Building2 className="h-4.5 w-4.5" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="font-bold text-foreground">{COMPANY.name}</p>
+                  <p className="text-sm text-muted-foreground">{COMPANY.description}</p>
+                </div>
               </div>
-            </SectionCard>
+              <dl className="grid gap-x-6 gap-y-1 text-sm text-muted-foreground sm:text-right">
+                <div className="flex gap-2 sm:justify-end"><dt className="sr-only">Phone</dt><dd>{COMPANY.phone}</dd></div>
+                <div className="flex gap-2 sm:justify-end"><dt className="sr-only">Email</dt><dd>{COMPANY.email}</dd></div>
+                <div className="flex gap-2 sm:justify-end"><dt className="sr-only">Service area</dt><dd>{COMPANY.address}</dd></div>
+              </dl>
+            </div>
 
             {/* Customer */}
             <SectionCard title="Customer" description={`Who this ${docLabel.toLowerCase()} is for`} icon={User}>
@@ -398,7 +375,7 @@ export function EstimateBuilder() {
                       key={t}
                       type="button"
                       aria-pressed={documentType === t}
-                      onClick={() => setDocumentType(t)}
+                      onClick={() => changeDocumentType(t)}
                       className={`min-h-10 flex-1 rounded text-sm font-medium capitalize transition-colors ${documentType === t ? "bg-brand-navy text-white" : "text-foreground hover:bg-background"}`}
                     >
                       {t}
