@@ -41,8 +41,11 @@ const COMPANY: CompanyInfo = {
 
 const EMPTY_CUSTOMER: CustomerInfo = { name: "", email: "", phone: "", address: "", projectDescription: "" }
 
+let itemSeq = 0
+const nextItemId = () => `item-${++itemSeq}`
+
 const newItem = (category: ItemCategory, overrides: Partial<EstimateItem> = {}): EstimateItem => ({
-  id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+  id: nextItemId(),
   description: "",
   quantity: 1,
   unit: CATEGORY_META[category].defaultUnit,
@@ -59,11 +62,11 @@ export function EstimateBuilder() {
   const [documentType, setDocumentType] = useState<DocumentType>("estimate")
   const [customer, setCustomer] = useState<CustomerInfo>(EMPTY_CUSTOMER)
   const [projectType, setProjectType] = useState("")
-  const [items, setItems] = useState<EstimateItem[]>([newItem("Labor")])
+  const [items, setItems] = useState<EstimateItem[]>([newItem("Labor", { id: "item-initial" })])
   const [notes, setNotes] = useState("")
   const [customNumber, setCustomNumber] = useState("")
-  const [createdDate, setCreatedDate] = useState(() => toDateInput(new Date()))
-  const [validUntil, setValidUntil] = useState(() => addDays(toDateInput(new Date()), DEFAULT_SETTINGS.validityDays))
+  const [createdDate, setCreatedDate] = useState("")
+  const [validUntil, setValidUntil] = useState("")
   const [settings, setSettings] = useState<EstimateSettings>(DEFAULT_SETTINGS)
   const [templates, setTemplates] = useState<PricingTemplate[]>(BUILT_IN_TEMPLATES)
   const [pricingOpen, setPricingOpen] = useState(false)
@@ -76,13 +79,16 @@ export function EstimateBuilder() {
   // Load saved data once on the client (deferred a frame so it never blocks first paint)
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
+    const today = toDateInput(new Date())
+    setCreatedDate(today)
+    setValidUntil(addDays(today, DEFAULT_SETTINGS.validityDays))
     const savedSettings = loadJSON<EstimateSettings>("settings")
     const userTemplates = loadJSON<PricingTemplate[]>("templates")
     const savedType = loadJSON<DocumentType>("documentType")
     if (savedSettings) {
       const merged = { ...DEFAULT_SETTINGS, ...savedSettings }
       setSettings(merged)
-      setValidUntil(addDays(toDateInput(new Date()), merged.validityDays))
+      setValidUntil(addDays(today, merged.validityDays))
     }
     if (userTemplates) setTemplates([...BUILT_IN_TEMPLATES, ...userTemplates.filter((t) => !isBuiltInTemplate(t.id))])
     if (savedType === "estimate" || savedType === "invoice") setDocumentType(savedType)
@@ -157,8 +163,8 @@ export function EstimateBuilder() {
     totals,
     metadata: {
       number: documentNumber(),
-      createdDate: `${createdDate}T00:00:00`,
-      expiryDate: `${validUntil}T00:00:00`,
+      createdDate: `${createdDate || toDateInput(new Date())}T00:00:00`,
+      expiryDate: `${validUntil || addDays(createdDate || toDateInput(new Date()), settings.validityDays)}T00:00:00`,
     },
   })
 
