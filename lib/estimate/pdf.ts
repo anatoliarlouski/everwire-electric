@@ -113,10 +113,32 @@ export async function buildPdf(data: EstimateData): Promise<jsPDF> {
   metaLines.forEach((line, i) => doc.text(line, right, y + 16 + i * 4.5, { align: "right" }))
   y += 34
 
-  // Company + client boxes
-  const boxH = 34
+  // Company + client boxes with labelled rows
+  type Row = { label?: string; value: string; bold?: boolean }
   const colW = (contentW - 6) / 2
-  const drawBox = (x: number, heading: string, lines: string[]) => {
+  const labelW = 22
+  const rowH = 4.6
+  const measure = (rows: Row[]) =>
+    rows.filter((r) => r.value.trim()).reduce((h, r) => {
+      const w = r.label ? colW - 8 - labelW : colW - 8
+      return h + doc.splitTextToSize(r.value, w).length * rowH
+    }, 0)
+  const companyRows: Row[] = [
+    { value: data.companyInfo.name, bold: true },
+    { value: data.companyInfo.description },
+    { label: "Phone", value: data.companyInfo.phone },
+    { label: "Email", value: data.companyInfo.email },
+    { label: "Service area", value: data.companyInfo.address },
+  ]
+  const clientRows: Row[] = [
+    { label: "Name", value: data.customerInfo.name, bold: true },
+    { label: "Phone", value: data.customerInfo.phone },
+    { label: "Email", value: data.customerInfo.email },
+    { label: "Address", value: data.customerInfo.address },
+  ]
+  doc.setFontSize(9)
+  const boxH = Math.max(measure(companyRows), measure(clientRows)) + 15
+  const drawBox = (x: number, heading: string, rows: Row[]) => {
     doc.setDrawColor(230, 230, 230)
     doc.setFillColor(ROW_TINT.r, ROW_TINT.g, ROW_TINT.b)
     doc.roundedRect(x, y, colW, boxH, 2, 2, "FD")
@@ -124,29 +146,25 @@ export async function buildPdf(data: EstimateData): Promise<jsPDF> {
     doc.setFontSize(8)
     setColor(NAVY)
     doc.text(heading.toUpperCase(), x + 4, y + 6)
-    doc.setFont(FONT, "normal")
     doc.setFontSize(9)
-    doc.setTextColor(30, 30, 30)
     let ly = y + 12
-    lines.filter(Boolean).forEach((line) => {
-      const wrapped = doc.splitTextToSize(line, colW - 8)
-      doc.text(wrapped, x + 4, ly)
-      ly += wrapped.length * 4.2
+    rows.filter((r) => r.value.trim()).forEach((r) => {
+      let vx = x + 4
+      if (r.label) {
+        doc.setFont(FONT, "normal")
+        setColor(GRAY)
+        doc.text(`${r.label}:`, x + 4, ly)
+        vx = x + 4 + labelW
+      }
+      doc.setFont(FONT, r.bold ? "bold" : "normal")
+      doc.setTextColor(30, 30, 30)
+      const wrapped = doc.splitTextToSize(r.value, colW - 8 - (r.label ? labelW : 0))
+      doc.text(wrapped, vx, ly)
+      ly += wrapped.length * rowH
     })
   }
-  drawBox(left, "From", [
-    data.companyInfo.name,
-    data.companyInfo.description,
-    data.companyInfo.phone,
-    data.companyInfo.email,
-    data.companyInfo.address,
-  ])
-  drawBox(left + colW + 6, "Client information", [
-    data.customerInfo.name,
-    data.customerInfo.phone,
-    data.customerInfo.email,
-    data.customerInfo.address,
-  ])
+  drawBox(left, "From", companyRows)
+  drawBox(left + colW + 6, "Client information", clientRows)
   y += boxH + 8
 
   // Project line
