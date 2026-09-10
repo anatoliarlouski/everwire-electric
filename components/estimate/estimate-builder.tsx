@@ -20,13 +20,14 @@ import {
   AlertCircle,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Field, NumberInput, SectionCard, Select, TextArea, TextInput } from "@/components/estimate/fields"
+import { Field, NumberInput, PhoneInput, SectionCard, Select, TextArea, TextInput } from "@/components/estimate/fields"
 import { PricingManager } from "@/components/estimate/pricing-manager"
 import { PdfPreview } from "@/components/estimate/pdf-preview"
 import { BUSINESS, CONTACT, CREDENTIALS } from "@/lib/constants"
 import { addDays, computeTotals, money, toDateInput } from "@/lib/estimate/calc"
 import { downloadPdf } from "@/lib/estimate/pdf"
 import { loadJSON, saveJSON } from "@/lib/estimate/storage"
+import { isValidPhone } from "@/lib/estimate/phone"
 import { BUILT_IN_TEMPLATES, CATEGORY_META, DEFAULT_SETTINGS, PROJECT_TYPES, UNITS, isBuiltInTemplate } from "@/lib/estimate/templates"
 import type { CompanyInfo, CustomerInfo, DocumentType, EstimateData, EstimateItem, EstimateSettings, ItemCategory, PricingTemplate } from "@/lib/estimate/types"
 
@@ -135,6 +136,7 @@ export function EstimateBuilder() {
   const validate = (): boolean => {
     const next: Record<string, string> = {}
     if (!customer.name.trim()) next.customerName = "Customer name is required"
+    if (!isValidPhone(customer.phone)) next.customerPhone = "Enter a 10-digit phone number, e.g. (847) 555-0100"
     if (!projectType) next.projectType = "Choose a project type"
     const incomplete = items.some((i) => (i.quantity > 0 || i.rate > 0) && !i.description.trim())
     const complete = items.filter((i) => i.description.trim() && i.quantity > 0 && i.rate > 0)
@@ -266,8 +268,8 @@ export function EstimateBuilder() {
                     {PROJECT_TYPES.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
                   </Select>
                 </Field>
-                <Field label="Phone" htmlFor="cu-phone">
-                  <TextInput id="cu-phone" type="tel" value={customer.phone} onChange={(e) => setCustomer((c) => ({ ...c, phone: e.target.value }))} placeholder="(847) 555-0100" />
+                <Field label="Phone" htmlFor="cu-phone" error={errors.customerPhone}>
+                  <PhoneInput id="cu-phone" value={customer.phone} invalid={!!errors.customerPhone} onValueChange={(v) => setCustomer((c) => ({ ...c, phone: v }))} placeholder="(847) 555-0100" />
                 </Field>
                 <Field label="Email" htmlFor="cu-email">
                   <TextInput id="cu-email" type="email" value={customer.email} onChange={(e) => setCustomer((c) => ({ ...c, email: e.target.value }))} placeholder="jane@example.com" />

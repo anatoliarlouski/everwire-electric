@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { formatPhone } from "@/lib/estimate/phone"
 
 const control =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-base text-foreground placeholder:text-muted-foreground outline-none transition-colors focus-visible:border-brand-lime focus-visible:ring-[3px] focus-visible:ring-brand-lime/40 disabled:opacity-60 md:text-sm min-h-11 md:min-h-10"
@@ -41,6 +42,22 @@ export function Field({
 
 export function TextInput({ className, invalid, ...props }: React.ComponentProps<"input"> & { invalid?: boolean }) {
   return <input className={cn(control, invalid && "border-destructive", className)} aria-invalid={invalid || undefined} {...props} />
+}
+
+export function PhoneInput({ className, value, onValueChange, invalid, ...props }: Omit<React.ComponentProps<"input">, "value" | "onChange"> & { value: string; onValueChange: (v: string) => void; invalid?: boolean }) {
+  return (
+    <input
+      type="tel"
+      inputMode="tel"
+      autoComplete="tel"
+      maxLength={14}
+      className={cn(control, invalid && "border-destructive", className)}
+      aria-invalid={invalid || undefined}
+      value={value}
+      onChange={(e) => onValueChange(formatPhone(e.target.value))}
+      {...props}
+    />
+  )
 }
 
 export function NumberInput({ className, value, onValueChange, ...props }: Omit<React.ComponentProps<"input">, "value" | "onChange"> & { value: number; onValueChange: (n: number) => void }) {
