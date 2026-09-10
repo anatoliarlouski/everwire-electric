@@ -62,6 +62,7 @@ export function Footer() {
               <li><Link href="/gallery" className="inline-block py-1.5 hover:text-foreground transition-colors">Project Gallery</Link></li>
               <li><Link href="/contact" className="inline-block py-1.5 hover:text-foreground transition-colors">Contact Us</Link></li>
               <li><Link href="/#services" className="inline-block py-1.5 hover:text-foreground transition-colors">Our Services</Link></li>
+              <li><Link href="/estimate-builder" className="inline-block py-1.5 hover:text-foreground transition-colors">Estimate Builder</Link></li>
             </ul>
           </div>
 
