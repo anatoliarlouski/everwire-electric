@@ -42,9 +42,9 @@ export function Header() {
       {/* Thin brand accent line */}
       <div className="h-1 w-full bg-accent" aria-hidden="true" />
 
-      <div className="container mx-auto flex h-16 md:h-20 lg:h-[5.5rem] items-center justify-between px-4">
+      <div className="container mx-auto flex h-16 md:h-20 lg:h-[5.5rem] items-center justify-between px-4 md:grid md:grid-cols-[1fr_auto_1fr]">
         {/* Logo: full lockup on desktop, mark + name on mobile */}
-        <Link href="/" className="flex items-center gap-3 py-2" aria-label={`${BUSINESS.name} home`}>
+        <Link href="/" className="flex items-center gap-3 py-2 md:justify-self-start" aria-label={`${BUSINESS.name} home`}>
           <Image
             src={BRAND_ASSETS.logo.src}
             alt={`${BUSINESS.name} logo`}
@@ -67,13 +67,13 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-7" aria-label="Main">
+        <nav className="hidden md:flex items-center justify-center gap-7" aria-label="Main">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.label}
               href={link.href}
               onClick={link.anchor ? (e) => handleSmoothScroll(e, link.anchor!) : undefined}
-              className="text-sm font-medium text-foreground/90 hover:text-foreground py-2 border-b-2 border-transparent hover:border-accent transition-colors"
+              className="text-sm font-medium leading-none text-foreground/90 hover:text-foreground py-2 border-y-2 border-transparent hover:border-b-accent transition-colors"
             >
               {link.label}
             </Link>
@@ -81,7 +81,7 @@ export function Header() {
         </nav>
 
         {/* Desktop contact actions */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center justify-end gap-4 md:justify-self-end">
           <a
             href={`tel:${phoneNumber}`}
             className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-brand-lime-ink transition-colors"
