@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function EstimateBuilderPage() {
   return (
-    <PageContainer>
+    <PageContainer variant="tool">
       <EstimateBuilder />
     </PageContainer>
   )
