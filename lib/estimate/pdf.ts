@@ -182,7 +182,7 @@ export async function buildPdf(data: EstimateData): Promise<jsPDF> {
   }
 
   // Item tables
-  const section = (items: EstimateItem[], heading: string, priceOnly: boolean) => {
+  const section = (items: EstimateItem[], heading: string, priceOnly: boolean, discountable = false) => {
     if (items.length === 0) return
     ensureSpace(30)
     doc.setFont(FONT, "bold")
@@ -241,22 +241,35 @@ export async function buildPdf(data: EstimateData): Promise<jsPDF> {
     const sectionTotal = items.reduce((a, i) => a + i.total, 0)
     doc.setFont(FONT, "bold")
     setColor(NAVY)
-    doc.text("Subtotal", right - 40, y + 2, { align: "right" })
+    doc.text("Subtotal:", right - 40, y + 2, { align: "right" })
     doc.text(money(sectionTotal), right - 3, y + 2, { align: "right" })
-    y += 10
+    y += 6
+    if (discountable && data.settings.discount > 0 && sectionTotal > 0) {
+      const off = sectionTotal * (data.settings.discount / 100)
+      doc.setFont(FONT, "normal")
+      setColor(GRAY)
+      doc.text(`Discount (${data.settings.discount}%):`, right - 40, y + 2, { align: "right" })
+      doc.text(`-${money(off)}`, right - 3, y + 2, { align: "right" })
+      y += 6
+      doc.setFont(FONT, "bold")
+      setColor(NAVY)
+      doc.text("Total with Discount:", right - 40, y + 2, { align: "right" })
+      doc.text(money(sectionTotal - off), right - 3, y + 2, { align: "right" })
+      y += 6
+    }
+    y += 4
   }
 
-  section(data.items.filter((i) => i.category === "Labor"), isInvoice ? "Work performed" : "Work items", false)
+  section(data.items.filter((i) => i.category === "Labor"), isInvoice ? "Work performed" : "Work items", false, true)
   section(data.items.filter((i) => i.category === "Materials"), "Materials", true)
   section(data.items.filter((i) => i.category === "Permits"), "Permits", true)
 
   // Summary
-  ensureSpace(46)
   const sumW = 80
   const sumX = right - sumW
   const rows: [string, string][] = [["Subtotal", money(data.totals.subtotal)]]
-  if (data.totals.discountAmount > 0) rows.push([`Discount (${data.settings.discount}%)`, `-${money(data.totals.discountAmount)}`])
   if (data.totals.tax > 0) rows.push([`Sales tax on materials (${data.settings.taxRate}%)`, money(data.totals.tax)])
+  ensureSpace(rows.length * 8 + 14)
   doc.setFont(FONT, "normal")
   doc.setFontSize(9.5)
   rows.forEach(([label, value]) => {

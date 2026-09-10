@@ -9,11 +9,12 @@ export function computeTotals(items: EstimateItem[], settings: EstimateSettings)
   const permitsTotal = sum("Permits")
   const subtotal = laborTotal + materialsTotal + permitsTotal
 
+  // The discount applies to work items (labor) only
   const factor = 1 - (settings.discount || 0) / 100
-  const laborAfterDiscount = settings.applyDiscountToLabor ? laborTotal * factor : laborTotal
-  const materialsAfterDiscount = settings.applyDiscountToMaterials ? materialsTotal * factor : materialsTotal
-  const permitsAfterDiscount = settings.applyDiscountToPermits ? permitsTotal * factor : permitsTotal
-  const discountAmount = subtotal - (laborAfterDiscount + materialsAfterDiscount + permitsAfterDiscount)
+  const laborAfterDiscount = laborTotal * factor
+  const materialsAfterDiscount = materialsTotal
+  const permitsAfterDiscount = permitsTotal
+  const discountAmount = laborTotal - laborAfterDiscount
 
   // Sales tax applies to materials only
   const tax = materialsAfterDiscount * ((settings.taxRate || 0) / 100)

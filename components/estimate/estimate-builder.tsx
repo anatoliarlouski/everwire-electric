@@ -391,7 +391,7 @@ export function EstimateBuilder() {
                 <Row label="Permits" value={money(totals.permitsTotal)} />
                 <div className="my-2 border-t border-white/10" />
                 <Row label="Subtotal" value={money(totals.subtotal)} />
-                {totals.discountAmount > 0 && <Row label={`Discount (${settings.discount}%)`} value={`-${money(totals.discountAmount)}`} />}
+                {totals.discountAmount > 0 && <Row label={`Discount on work items (${settings.discount}%)`} value={`-${money(totals.discountAmount)}`} />}
                 {totals.tax > 0 && <Row label={`Tax on materials (${settings.taxRate}%)`} value={money(totals.tax)} />}
               </dl>
               <div className="mt-4 flex items-baseline justify-between border-t border-brand-lime/40 pt-4">

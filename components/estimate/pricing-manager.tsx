@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Plus, Pencil, Trash2, Settings2, BookOpen, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Field, NumberInput, Select, TextArea, TextInput, Toggle } from "@/components/estimate/fields"
+import { Field, NumberInput, Select, TextArea, TextInput } from "@/components/estimate/fields"
 import { money } from "@/lib/estimate/calc"
 import { isBuiltInTemplate, UNITS, DEFAULT_SETTINGS } from "@/lib/estimate/templates"
 import type { EstimateSettings, ItemCategory, PricingTemplate } from "@/lib/estimate/types"
@@ -159,20 +159,12 @@ export function PricingManager({ open, onOpenChange, templates, settings, onTemp
               <Field label="Sales tax on materials (%)" htmlFor="set-tax">
                 <NumberInput id="set-tax" min={0} max={100} step="0.01" value={local.taxRate} onValueChange={(n) => setLocal({ ...local, taxRate: n })} />
               </Field>
-              <Field label="Discount (%)" htmlFor="set-disc">
+              <Field label="Discount on work items (%)" htmlFor="set-disc" hint="Materials and permits are never discounted">
                 <NumberInput id="set-disc" min={0} max={100} step="0.5" value={local.discount} onValueChange={(n) => setLocal({ ...local, discount: n })} />
               </Field>
               <Field label="Estimate valid for (days)" htmlFor="set-valid">
                 <NumberInput id="set-valid" min={1} max={365} step="1" value={local.validityDays} onValueChange={(n) => setLocal({ ...local, validityDays: n })} />
               </Field>
-              <div className="space-y-2 sm:col-span-2">
-                <p className="text-sm font-medium text-foreground">Apply discount to</p>
-                <div className="grid gap-2 sm:grid-cols-3">
-                  <Toggle id="d-labor" label="Work items" checked={local.applyDiscountToLabor} onCheckedChange={(v) => setLocal({ ...local, applyDiscountToLabor: v })} />
-                  <Toggle id="d-mat" label="Materials" checked={local.applyDiscountToMaterials} onCheckedChange={(v) => setLocal({ ...local, applyDiscountToMaterials: v })} />
-                  <Toggle id="d-per" label="Permits" checked={local.applyDiscountToPermits} onCheckedChange={(v) => setLocal({ ...local, applyDiscountToPermits: v })} />
-                </div>
-              </div>
               <Field label="Estimate terms" htmlFor="set-eterms" className="sm:col-span-2">
                 <TextArea id="set-eterms" value={local.estimateTerms} onChange={(e) => setLocal({ ...local, estimateTerms: e.target.value })} />
               </Field>
