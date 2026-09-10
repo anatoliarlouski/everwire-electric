@@ -122,11 +122,16 @@ export const DEFAULT_SETTINGS: EstimateSettings = {
   estimateTerms:
     "This estimate is valid for 30 days from the date of issue. A 50% deposit is required to schedule the work; the balance is due upon completion.",
   invoiceTerms:
-    "Payment is due within 3 business days of receiving this invoice. All work has been completed in accordance with the agreed specifications.",
+    "Payment is due upon completion of the work. All work has been completed in accordance with the agreed specifications.",
   applyDiscountToLabor: true,
   applyDiscountToMaterials: false,
   applyDiscountToPermits: false,
 }
+
+/** Earlier default wordings, replaced automatically when found in saved settings. */
+export const LEGACY_INVOICE_TERMS = [
+  "Payment is due within 3 business days of receiving this invoice. All work has been completed in accordance with the agreed specifications.",
+]
 
 export function isBuiltInTemplate(id: string): boolean {
   return id.startsWith("builtin-")

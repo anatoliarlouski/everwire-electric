@@ -29,7 +29,7 @@ import { addDays, computeTotals, money, toDateInput } from "@/lib/estimate/calc"
 import { downloadPdf } from "@/lib/estimate/pdf"
 import { loadJSON, saveJSON } from "@/lib/estimate/storage"
 import { isValidPhone } from "@/lib/estimate/phone"
-import { BUILT_IN_TEMPLATES, CATEGORY_META, DEFAULT_SETTINGS, PROJECT_TYPES, UNITS, isBuiltInTemplate } from "@/lib/estimate/templates"
+import { BUILT_IN_TEMPLATES, CATEGORY_META, DEFAULT_SETTINGS, LEGACY_INVOICE_TERMS, PROJECT_TYPES, UNITS, isBuiltInTemplate } from "@/lib/estimate/templates"
 import type { CompanyInfo, CustomerInfo, DocumentType, EstimateData, EstimateItem, EstimateSettings, ItemCategory, PricingTemplate } from "@/lib/estimate/types"
 
 /** Company details come from the site constants and are not editable here. */
@@ -97,6 +97,7 @@ export function EstimateBuilder() {
     const savedType = loadJSON<DocumentType>("documentType")
     if (savedSettings) {
       const merged = { ...DEFAULT_SETTINGS, ...savedSettings }
+      if (LEGACY_INVOICE_TERMS.includes(merged.invoiceTerms)) merged.invoiceTerms = DEFAULT_SETTINGS.invoiceTerms
       setSettings(merged)
       setValidUntil(addDays(today, merged.validityDays))
     }
