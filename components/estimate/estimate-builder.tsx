@@ -76,9 +76,9 @@ export function EstimateBuilder() {
   const [notice, setNotice] = useState<Notice>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Load saved data once on the client (deferred a frame so it never blocks first paint)
+  // Load saved data once on the client (deferred a tick; runs even in a background tab)
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
+    const timer = setTimeout(() => {
     const today = toDateInput(new Date())
     setCreatedDate(today)
     setValidUntil(addDays(today, DEFAULT_SETTINGS.validityDays))
@@ -93,8 +93,8 @@ export function EstimateBuilder() {
     if (userTemplates) setTemplates([...BUILT_IN_TEMPLATES, ...userTemplates.filter((t) => !isBuiltInTemplate(t.id))])
     if (savedType === "estimate" || savedType === "invoice") setDocumentType(savedType)
     setHydrated(true)
-    })
-    return () => cancelAnimationFrame(frame)
+    }, 0)
+    return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {
